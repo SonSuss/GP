@@ -1,0 +1,1 @@
+Type "py main.py" to run game
