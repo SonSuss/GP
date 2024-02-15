@@ -19,15 +19,17 @@ double deltaTime;
 // double FPS = 1000 / /*FPS go here ->*/ 60.0;
 // Uint32 fpsCap; //ms
 
+bool gameRunning = true ; 
 
+const int gameBarHeight = 50 ;
 
-const int gameBarHeight = 50 , playerHeight = 100, playerWidth = 30 ;
+const float playerHeight = 60, playerWidth = 30 ;
 
-const int WIDTH = 1280 , HEIGHT = 720 - gameBarHeight ;
+const int WIDTH = 1280 , HEIGHT = 720;
 
 struct GameMem
 {   
-    bool initialized;
+    bool initialized = false ;
     Uint64 storageSize;
     void *storage; 
 };
