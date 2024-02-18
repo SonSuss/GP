@@ -1,6 +1,8 @@
 //2052688
 #include "gameCode.cpp"
+#include "button.cpp"
 
+TTF_Font* Sans = TTF_OpenFont("Sans.ttf", 24);
 
 int main(int argc, char *argv[]){
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -35,35 +37,36 @@ int main(int argc, char *argv[]){
         Uint64 frameStartTime = SDL_GetPerformanceCounter();
         Uint64 frameEndTime, elapsedTime;
 
-
+        int main = 0; //0 for menu; 1 for game.
     //game loop
         while (gameRunning){
-            // event loop
-            // SDL_Event event;
-            // while (SDL_PollEvent(&event)){
-            //     switch (event.type){
-            //         case SDL_QUIT:{
-            //             gameRunning = false;
-            //             break;
-            //         }
-            //         //event for keyboard press and release
-
-            //         default: break;
-            //     }
-            // }
-            // render
-            SDL_SetRenderDrawColor(renderer, 50, 80, 50, 255);
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderClear(renderer);
-            //-- draw things
-                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-                SDL_RenderFillRect(renderer, &gameBarMargin);
+            if (main ==0){ 
+                SDL_SetRenderDrawColor(renderer, 50, 80, 50, 255);
+                SDL_RenderPresent(renderer);
+                
 
-                SDL_SetRenderDrawColor(renderer, 30, 80, 30, 255);
-                SDL_RenderFillRect(renderer, &gameBar);
 
-                UpdateAndRender(&gameMemory);
-            
-            SDL_RenderPresent(renderer);
+                SDL_Event event;
+                while (SDL_PollEvent(&event)){
+                    switch (event.type){
+                        case SDL_QUIT:{
+                            gameRunning = false;
+                            break;
+                        }
+                        //event for keyboard press and release
+                        default: break;
+                    }
+                }
+            }
+            // //-- draw things
+            //     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            //     SDL_RenderFillRect(renderer, &gameBarMargin);
+            //     SDL_SetRenderDrawColor(renderer, 30, 80, 30, 255);
+            //     SDL_RenderFillRect(renderer, &gameBar);
+            //     UpdateAndRender(&gameMemory);
+            // SDL_RenderPresent(renderer);
 
             // FPS caculate
             frameEndTime = SDL_GetPerformanceCounter();
