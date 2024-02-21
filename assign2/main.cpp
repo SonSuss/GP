@@ -1,8 +1,46 @@
 //2052688
 #include "gameCode.cpp"
-#include "button.cpp"
 
-TTF_Font* Sans = TTF_OpenFont("Sans.ttf", 24);
+Button startButton("START", 40, WIDTH/2 , (HEIGHT-gameBarHeight)/2 - 50 , 150 , 70, bcolor, bchange ,tcolor);
+Button quitButton("QUIT", 40, WIDTH/2 , (HEIGHT-gameBarHeight)/2 + 50 , 150 , 70, bcolor, bchange ,tcolor);
+
+bool menu(){
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+    SDL_Event event;
+    while (SDL_PollEvent(&event)){
+        switch (event.type){
+            case SDL_QUIT:{
+                gameRunning = false;
+                break;
+            }
+            case SDL_MOUSEMOTION:{
+                startButton.mouseOn(mouseX, mouseY);
+                quitButton.mouseOn(mouseX, mouseY);
+                break;
+            }
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:{
+                if (event.button.button == SDL_BUTTON_LEFT){
+                    if (event.button.state == SDL_RELEASED) {
+                        if (quitButton.mousePressed(mouseX, mouseY)){
+                            gameRunning = false;
+                            break;
+                        }
+                        return startButton.mousePressed(mouseX, mouseY);
+                    } 
+                }
+                break;
+            }
+            default: break;
+        }
+    }
+    SDL_Color color = {255,255,255};
+    writeText(70 , color, "TINY FOOTBALL!!!", 640 , 185);
+    startButton.render(renderer);
+    quitButton.render(renderer);
+    return false;
+}
 
 int main(int argc, char *argv[]){
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -17,6 +55,11 @@ int main(int argc, char *argv[]){
     renderer = SDL_CreateRenderer( window , -1 , SDL_RENDERER_ACCELERATED /* SDL_RENDERER_PRESENTVSYNC  to set fps as a computer monitor  */ );
     if (renderer == NULL){
         SDL_Log("renderer is dead");
+        SDL_GetError() ;
+        return 1;
+    }
+    if ( TTF_Init() < 0 ) {
+        SDL_Log("Text is dead");
         SDL_GetError() ;
         return 1;
     }
@@ -37,43 +80,28 @@ int main(int argc, char *argv[]){
         Uint64 frameStartTime = SDL_GetPerformanceCounter();
         Uint64 frameEndTime, elapsedTime;
 
-        int main = 0; //0 for menu; 1 for game.
-    //game loop
+        bool phase = false; //0 for menu; 1 for game.
+        //game loop
         while (gameRunning){
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            SDL_RenderClear(renderer);
-            if (main ==0){ 
-                SDL_SetRenderDrawColor(renderer, 50, 80, 50, 255);
-                SDL_RenderPresent(renderer);
-                
-
-
-                SDL_Event event;
-                while (SDL_PollEvent(&event)){
-                    switch (event.type){
-                        case SDL_QUIT:{
-                            gameRunning = false;
-                            break;
-                        }
-                        //event for keyboard press and release
-                        default: break;
-                    }
-                }
+        SDL_SetRenderDrawColor(renderer, 50, 80, 50, 255);
+        SDL_RenderClear( renderer );
+            if (phase == false){
+                phase = menu();
             }
-            // //-- draw things
-            //     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-            //     SDL_RenderFillRect(renderer, &gameBarMargin);
-            //     SDL_SetRenderDrawColor(renderer, 30, 80, 30, 255);
-            //     SDL_RenderFillRect(renderer, &gameBar);
-            //     UpdateAndRender(&gameMemory);
-            // SDL_RenderPresent(renderer);
-
+            else {
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_RenderFillRect(renderer, &gameBarMargin);
+                SDL_SetRenderDrawColor(renderer, 30, 80, 30, 255);
+                SDL_RenderFillRect(renderer, &gameBar);
+                phase = UpdateAndRender(&gameMemory);
+                SDL_RenderPresent(renderer);}
+            //-- draw things
             // FPS caculate
             frameEndTime = SDL_GetPerformanceCounter();
             elapsedTime = frameEndTime - frameStartTime;
             deltaTime = (double)elapsedTime / (double)performFreq; // v of object = S_per_second * deltaTime
             frameStartTime = frameEndTime;
-            //SDL_Log("Delta time: %f, FPS: %f", deltaTime, 1/deltaTime);
+            // SDL_Log("Delta time: %f, FPS: %f", deltaTime, 1/deltaTime);
             
             // //Cap fps
             // if (FPS - deltaTime * 1000 > 0){
@@ -81,7 +109,7 @@ int main(int argc, char *argv[]){
             //     SDL_Delay(fpsCap);}
 
             // SDL_Delay(floor(15.666f - deltaTime));
-            
+            SDL_RenderPresent(renderer);
         }
     }
     else {

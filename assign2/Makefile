@@ -10,7 +10,7 @@ CXXFLAGS = -I.
 LDFLAGS = -L src/lib
 
 # Libraries to link against
-LIBS = -lmingw32 -lSDL2main -lSDL2
+LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
 
 # Source file
 SRCS = main.cpp

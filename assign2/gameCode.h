@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <cmath>
+
 #include "main.h"
  
 
@@ -26,7 +27,7 @@ virtual void moveRight()=0;
 virtual void move()=0;
 virtual void choose()=0;
 virtual void collision(Entity *object)=0;
-virtual void UpdateAndDraw()=0;
+virtual void Draw()=0;
 virtual double getAngle()=0;
 virtual float getVelocity()=0;
 virtual void setBall(double angle, float velocity)=0;
@@ -96,7 +97,7 @@ class Wall : public Entity {
     double getAngle(){return 0;};
     void setBall(double angle, float velocity){};
     float getVelocity(){return 0;};
-    void UpdateAndDraw() {
+    void Draw() {
         SDL_SetRenderDrawColor(renderer, r,b,g,a);
         SDL_RenderFillRectF(renderer, &rect);
     };
@@ -119,13 +120,15 @@ class Ball : public Entity {
     void moveLeft(){};
     void moveRight(){};
     void move(){
-        if (this->vAngle <= 0) {this->vAngle += 2*PI;}
-        if (this->vAngle > 2*PI){this->vAngle -= 2*PI;}
-        this->pre_x = this->x;
-        this->pre_y = this->y;
-        this->x += velocity * cos(vAngle) * deltaTime;
-        this->y += velocity * sin(vAngle) * deltaTime;
-        this->velocity = this->velocity - this->acceleration*deltaTime;
+        if (this->velocity > 0){
+            if (this->vAngle <= 0) {this->vAngle += 2*PI;}
+            if (this->vAngle > 2*PI){this->vAngle -= 2*PI;}
+            this->pre_x = this->x;
+            this->pre_y = this->y;
+            this->x += velocity * cos(vAngle) * deltaTime;
+            this->y += velocity * sin(vAngle) * deltaTime;
+            this->velocity = this->velocity - this->acceleration*deltaTime;}
+        else {this->velocity = -1 ; this->vAngle = 0;}
     };
     void choose(){};
     void collision(Entity *object){};
@@ -139,8 +142,7 @@ class Ball : public Entity {
         return this->x;
     }
     
-    void UpdateAndDraw(){
-        if (this->velocity > 0){move();}else {this->velocity = -1 ; this->vAngle = 0;}
+    void Draw(){
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); 
         float radiusSquared = w * w;
         for (int dy = -w; dy <= w; dy++) {
@@ -286,7 +288,7 @@ class Player : public Wall {
             }
         }
     };
-    void UpdateAndDraw() {
+    void Draw() {
         x_center = this->rect.x + this->rect.w / 2;
         y_center = this->rect.y + this->rect.h / 2;
         SDL_SetRenderDrawColor(renderer, r,b,g,a);

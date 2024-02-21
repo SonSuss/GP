@@ -1,7 +1,6 @@
 #ifndef main
 #define main
 
-#include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
@@ -14,6 +13,10 @@
 
 SDL_Window *window;
 SDL_Renderer *renderer;
+TTF_Font* font ;
+SDL_Color bcolor = {0, 102, 0};
+SDL_Color bchange = {102,30,0};
+SDL_Color tcolor = {255,255,255};
 
 // unlitmited FPS
 double deltaTime;
@@ -35,7 +38,6 @@ struct GameMem
     Uint64 storageSize;
     void *storage; 
 };
-
 
 
 #endif //main   //
