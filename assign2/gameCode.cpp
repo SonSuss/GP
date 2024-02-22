@@ -3,9 +3,22 @@
 
 const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
 
+
+const char* intToConstChar(int num) {
+    std::string str = std::to_string(num);
+    return str.c_str();
+}
+
+
+float gameTimeSet = 90.0f;
+float timePassed = 0.0f;
+int timeSeconds = 0;
+
+
 std::vector <Entity*> player1;
 Entity *currentPlayer1;
-int player1score = 0;
+int player1score =0;
+
 
 std::vector <Entity*> player2;
 Entity *currentPlayer2;
@@ -23,9 +36,20 @@ bool gamePasued = false;
 
 bool UpdateAndRender(GameMem *gameMemory){
     GameState *gameState = (GameState*)gameMemory->storage;
+    timeSeconds = (int)(gameTimeSet - timePassed);
     // init everything in the memory for the first time 
     if(!gameMemory->initialized){
         gameState->entityCount++; // skip the 0 entity cuz 0 = false 
+
+        //  the walls
+        gameState->entities[gameState->entityCount++] = new Wall(0 ,gameBarHeight,WIDTH, 15, 190, 190, 190, 255);//wall1
+        gameState->entities[gameState->entityCount++] = new Wall(0 ,HEIGHT - 15 , WIDTH, 15, 190, 190, 190, 255);//wall2
+        // /*test*/ gameState->entities[gameState->entityCount++] = new Wall(0 , gameBarHeight , 15 , (HEIGHT-gameBarHeight), 190, 190, 190, 255);//wall3
+        // /*test*/ gameState->entities[gameState->entityCount++] = new Wall(WIDTH - 15 , gameBarHeight , 15 , (HEIGHT-gameBarHeight)  , 190, 190, 190, 255);//wall5
+        gameState->entities[gameState->entityCount++] = new Wall(0 , gameBarHeight , 15 , (HEIGHT-gameBarHeight)/5 * 2 , 190, 190, 190, 255);//wall3
+        gameState->entities[gameState->entityCount++] = new Wall(0 ,gameBarHeight + (HEIGHT-gameBarHeight)/5 * 3 , 15 , (HEIGHT-gameBarHeight)/5 * 2  , 190, 190, 190, 255);//wall4
+        gameState->entities[gameState->entityCount++] = new Wall(WIDTH - 15 , gameBarHeight , 15 , (HEIGHT-gameBarHeight)/5 * 2  , 190, 190, 190, 255);//wall5
+        gameState->entities[gameState->entityCount++] = new Wall(WIDTH - 15 ,gameBarHeight + (HEIGHT-gameBarHeight)/5 * 3  ,15,(HEIGHT-gameBarHeight)/5 * 2 , 190, 190, 190, 255);//wall6  
         // player
         // player 1
         gameState->entities[gameState->entityCount] = new Player(30 ,gameBarHeight + (HEIGHT-gameBarHeight)/2 - playerHeight / 2 - 50,0.0f, 300, 255,51,51,255) ;//player1
@@ -47,17 +71,7 @@ bool UpdateAndRender(GameMem *gameMemory){
         player2.insert(player2.begin(), gameState->entities[gameState->entityCount]);gameState->entityCount++;
         currentPlayer2 = player2.back();
         player2.pop_back();
-        currentPlayer2->choose();
-
-        //  the walls
-        gameState->entities[gameState->entityCount++] = new Wall(0 ,gameBarHeight,WIDTH, 15, 190, 190, 190, 255);//wall1
-        gameState->entities[gameState->entityCount++] = new Wall(0 ,HEIGHT - 15 , WIDTH, 15, 190, 190, 190, 255);//wall2
-        // /*test*/ gameState->entities[gameState->entityCount++] = new Wall(0 , gameBarHeight , 15 , (HEIGHT-gameBarHeight), 190, 190, 190, 255);//wall3
-        // /*test*/ gameState->entities[gameState->entityCount++] = new Wall(WIDTH - 15 , gameBarHeight , 15 , (HEIGHT-gameBarHeight)  , 190, 190, 190, 255);//wall5
-        gameState->entities[gameState->entityCount++] = new Wall(0 , gameBarHeight , 15 , (HEIGHT-gameBarHeight)/5 * 2 , 190, 190, 190, 255);//wall3
-        gameState->entities[gameState->entityCount++] = new Wall(0 ,gameBarHeight + (HEIGHT-gameBarHeight)/5 * 3 , 15 , (HEIGHT-gameBarHeight)/5 * 2  , 190, 190, 190, 255);//wall4
-        gameState->entities[gameState->entityCount++] = new Wall(WIDTH - 15 , gameBarHeight , 15 , (HEIGHT-gameBarHeight)/5 * 2  , 190, 190, 190, 255);//wall5
-        gameState->entities[gameState->entityCount++] = new Wall(WIDTH - 15 ,gameBarHeight + (HEIGHT-gameBarHeight)/5 * 3  ,15,(HEIGHT-gameBarHeight)/5 * 2 , 190, 190, 190, 255);//wall6                                                               
+        currentPlayer2->choose();                                                             
 
         //ball
         gameState->entities[gameState->entityCount] = new Ball(WIDTH / 2 -300, gameBarHeight + (HEIGHT-gameBarHeight)/2, 12);
@@ -65,6 +79,19 @@ bool UpdateAndRender(GameMem *gameMemory){
 
         gameMemory->initialized = true;
     }
+
+    //scoreboard
+    const char *phayer1scoreC = intToConstChar(player1score);
+    SDL_Color white = {255,255,255};
+    writeText(40, white , phayer1scoreC , 440 , 25);
+    const char *phayer2scoreC = intToConstChar(player2score);
+    writeText(40, white , phayer2scoreC , 820 , 25);
+    writeText(40, white , ":" , 640 , 23);
+    const char *minute = intToConstChar((int)(timeSeconds/60));
+    writeText(30, white , minute , 620 , 25);
+    const char *second = intToConstChar(timeSeconds % 60);
+    writeText(30, white , second , 670 , 25);
+    
     ball->Draw();
     for (int e_i = 1; e_i < gameState->entityCount - 1 ; e_i++){
         gameState->entities[e_i]->collision(ball);
@@ -175,18 +202,21 @@ bool UpdateAndRender(GameMem *gameMemory){
                 default: break;
             }
         }
+        timePassed += deltaTime;
         ball->move();
         ball->Draw();
         if (ball->getBallX() < 0 ){
+            player2score ++;
+            gameMemory->initialized = false;
+            gameState->entityCount = 0;
+            player1.clear();
+            player2.clear();
+        }   
+        if (ball->getBallX() > WIDTH){
             player1score ++;
             gameMemory->initialized = false;
             gameState->entityCount = 0;
             player1.clear();
-        }   
-        if (ball->getBallX() > WIDTH){
-            player2score ++;
-            gameMemory->initialized = false;
-            gameState->entityCount = 0;
             player2.clear();
         }
     }
@@ -217,14 +247,24 @@ bool UpdateAndRender(GameMem *gameMemory){
                                 gameMemory->initialized = false;
                                 gameState->entityCount = 0;
                                 player1.clear();
+                                player2.clear();
                                 gamePasued = false;
                                 // reset score and timer
+                                timePassed = 0.0f;
+                                player1score = 0;
+                                player2score = 0;
+
                             }
                             if (menuButton.mousePressed(mouseX, mouseY)){
                                 gameMemory->initialized = false;
                                 gameState->entityCount = 0;
                                 player1.clear();
+                                player2.clear();
                                 // reset score and timer
+                                timePassed = 0.0f;
+                                player1score = 0;
+                                player2score = 0;
+
                                 gamePasued = false;
                                 return false;
                             }

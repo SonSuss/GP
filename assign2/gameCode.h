@@ -1,9 +1,11 @@
 #ifndef gameCode
 #define gameCode
 
-
+#include <iostream>
 #include <vector>
 #include <cmath>
+#include <string>
+
 
 #include "main.h"
  

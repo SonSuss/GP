@@ -73,8 +73,9 @@ int main(int argc, char *argv[]){
         memset(gameMemory.storage, 0, gameMemory.storageSize);
 
         SDL_Rect gameBarMargin = {0,0, WIDTH, gameBarHeight};
-        SDL_Rect gameBar = {3 , 3, WIDTH - 6, gameBarHeight - 6};
-        
+        SDL_Rect gameBar = {3 , 3, 1274, 44};
+        SDL_Rect gameLine1 = {587, 3 , 6 , 44};
+        SDL_Rect gameLine2 = {690, 3 , 6 , 44};
 
         Uint64 performFreq = SDL_GetPerformanceFrequency();
         Uint64 frameStartTime = SDL_GetPerformanceCounter();
@@ -93,6 +94,9 @@ int main(int argc, char *argv[]){
                 SDL_RenderFillRect(renderer, &gameBarMargin);
                 SDL_SetRenderDrawColor(renderer, 30, 80, 30, 255);
                 SDL_RenderFillRect(renderer, &gameBar);
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                SDL_RenderFillRect(renderer, &gameLine1);
+                SDL_RenderFillRect(renderer, &gameLine2);
                 phase = UpdateAndRender(&gameMemory);
                 SDL_RenderPresent(renderer);}
             //-- draw things
