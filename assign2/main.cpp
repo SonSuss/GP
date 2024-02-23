@@ -107,12 +107,6 @@ int main(int argc, char *argv[]){
             frameStartTime = frameEndTime;
             // SDL_Log("Delta time: %f, FPS: %f", deltaTime, 1/deltaTime);
             
-            // //Cap fps
-            // if (FPS - deltaTime * 1000 > 0){
-            //     fpsCap =  floor(FPS - deltaTime*1000) + 1;
-            //     SDL_Delay(fpsCap);}
-
-            // SDL_Delay(floor(15.666f - deltaTime));
             SDL_RenderPresent(renderer);
         }
     }
